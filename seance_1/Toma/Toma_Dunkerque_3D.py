@@ -52,7 +52,7 @@ y = np.arange(0, 1237)
 X, Y = np.meshgrid(x, y)
 
 z_min = np.min(data)
-cset = ax.contour(X, Y, data, zdir='z',offset=z_min, levels=15, colors='black')
+cset = ax.contour(X, Y, data, zdir='z',offset=z_min, levels=5, colors='black')
 img = ax.plot_surface(X, Y, data, edgecolor='none', antialiased=False, cmap=cmap)
 # Autre possibilité
 #img = plt.pcolormesh(X, Y, data, cmap=cmap)
