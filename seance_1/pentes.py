@@ -73,7 +73,11 @@ def Evans(mnt, s=1.0):
 # F = (5*z5 + 2*(z2 + z4 + z6 + z8) - (z1 + z3 + z7 + z9)) / 9
 
     
-    
+def pente(fx,fy):
+    return math.sqrt(fx**2,fy**2)
+
+def exposition(fx,fy):
+    return math.atan2(-fx,-fy)
     
     
     
