@@ -88,19 +88,32 @@ grad_tpp   = gradient_tpp(data)
 grad_fcn   = gradient_fcn(data)
 grad_evans = gradient_evans(data)
 
+grad_vmin = min(grad_tpp.min(), grad_fcn.min(), grad_evans.min())
+grad_vmax = max(grad_tpp.max(), grad_fcn.max(), grad_evans.max()) / 4
+grad_levels = np.linspace(grad_vmin, grad_vmax, 101)
+
 fig, axes = plt.subplots(2, 2, figsize=(14, 11))
 fig.suptitle('Dunkerque — comparaison des méthodes de gradient', fontsize=13)
 
-titles = ['MNT original', 'Gradient TPP\n(O\'Neill & Mark)', 'Gradient FCN\n(4 voisins)', 'Gradient Evans']
+titles   = ['MNT original', "Gradient TPP\n(O'Neill & Mark)", 'Gradient FCN\n(4 voisins)', 'Gradient Evans']
 datasets = [data, grad_tpp, grad_fcn, grad_evans]
-cmaps = ['gist_earth', 'inferno', 'inferno', 'inferno']
 
-for ax, title, d, cmap in zip(axes.flat, titles, datasets, cmaps):
-    im = ax.contourf(X, Y, d, levels=100, cmap=cmap)
+extent = [x[0], x[-1], y[0], y[-1]]
+
+ax_mnt = axes.flat[0]
+im_mnt = ax_mnt.imshow(data, origin='lower', extent=extent, aspect='auto', cmap='gist_earth')
+ax_mnt.set_title(titles[0])
+ax_mnt.set_xlabel('x')
+ax_mnt.set_ylabel('y')
+fig.colorbar(im_mnt, ax=ax_mnt, label='Altitude [m]')
+
+for ax, title, d in zip(list(axes.flat)[1:], titles[1:], [grad_tpp, grad_fcn, grad_evans]):
+    im = ax.imshow(d, origin='lower', extent=extent, aspect='auto',
+                   cmap='inferno', vmin=grad_vmin, vmax=grad_vmax)
     ax.set_title(title)
     ax.set_xlabel('x')
     ax.set_ylabel('y')
-    fig.colorbar(im, ax=ax, label='Altitude [m]' if title == 'MNT original' else '|∇z| [m/m]')
+    fig.colorbar(im, ax=ax, label='|∇z| [m/m]')
 
 plt.tight_layout()
 plt.show()
