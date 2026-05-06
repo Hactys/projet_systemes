@@ -8,7 +8,7 @@ x = np.arange(0, 1249)
 y = np.arange(0, 1237)
 X, Y = np.meshgrid(x, y)
 
-mnt = np.loadtxt('Dune2Dunkerque.xyz')
+mnt = np.loadtxt('Dune2_Dunkerque_Extrait1_50cm.xyz')
 cmap = plt.cm.gist_earth
 img = plt.contourf(X, Y, mnt, levels=100, cmap=cmap)
 plt.contour(X, Y, mnt, levels=5, colors='black')
