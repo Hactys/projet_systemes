@@ -28,22 +28,31 @@ data4 = np.loadtxt(double_sin_path)
 x = np.arange(0, 101)
 y = np.arange(0, 101)
 X, Y = np.meshgrid(x, y)
-th1 = lambda _ : (np.cos(X), np.sin(Y))
-th2 = lambda _ : (np.cos(X), np.sin(Y))
-th3 = lambda _ : (np.cos(X), np.sin(Y))
+
+d = np.sqrt((X - 40)**2 + (Y - 50)**2)
+# Sécurité : on remplace temporairement les 0 par 1 pour éviter
+# le crash de la division par zéro au point (x=40, y=50)
+d_safe = np.where(d == 0, 1, d)
+num1 = 10 * d_safe * np.cos(0.1 * d_safe) - 100 * np.sin(0.1 * d_safe)
+th1 = lambda _ : (np.where(d == 0, 0, (X - 40) * num1 / (d_safe**3)), np.where(d == 0, 0, (Y - 50) * num1 / (d_safe**3)))
+th2 = lambda _ : (1 - np.tanh((X - 40) / 5)**2, np.zeros_like(Y))
+th3 = lambda _ : (np.full(X.shape, 0.07), np.full(Y.shape, 0.1))
 th4 = lambda _ : (0.5 * np.cos((X / 10) + 3 * np.sin(Y / 20)), 0.75 * np.cos(Y / 20) * np.cos((X / 10) + 3 * np.sin(Y / 20)) + 0.4 * np.cos(Y / 5))
 
 
 cmap = plt.cm.gist_earth
 
+noms_donnees = ["sin_card", "plateau", "plan", "double_sin"] #Utile pour les titres des graphiques
+noms_methodes = ["TPP", "FCN", "Evans", "Théorique"] #Utile pour les titres des graphiques
+
 for j, data in enumerate([data1, data2, data3, data4]):
     fig, ax = plt.subplots(2, 2, figsize=(15, 5))
     for i, mth in enumerate([TPP, FCN, Evans, [th1, th2, th3, th4][j]]):
-        print(mth)
         fx, fy = mth(data)
         pt = pente(fx, fy)
         im = ax[i//2, i%2].imshow(pt, origin='lower', cmap=cmap)
-        ax[i//2, i%2].set_title(["sin_card", "plateau", "plan", "double_sin"][j])
+        titre = f"{noms_donnees[j]} - Méthode : {noms_methodes[i]}"
+        ax[i // 2, i % 2].set_title(titre)
         divider = make_axes_locatable(ax[i//2, i%2])
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt.colorbar(im, label='p[°]', cax=cax)
