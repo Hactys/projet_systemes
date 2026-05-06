@@ -49,8 +49,8 @@ for j, data in enumerate([data1, data2, data3, data4]):
     fig, ax = plt.subplots(2, 2, figsize=(15, 5))
     for i, mth in enumerate([TPP, FCN, Evans, [th1, th2, th3, th4][j]]):
         fx, fy = mth(data)
-        pt = pente(fx, fy)
-        im = ax[i//2, i%2].imshow(pt, origin='lower', cmap=cmap)
+        exp = exposition(fx, fy)
+        im = ax[i//2, i%2].imshow(exp, origin='lower', cmap=cmap)
         titre = f"{noms_donnees[j]} - Méthode : {noms_methodes[i]}"
         ax[i // 2, i % 2].set_title(titre)
         divider = make_axes_locatable(ax[i//2, i%2])
@@ -58,4 +58,3 @@ for j, data in enumerate([data1, data2, data3, data4]):
         plt.colorbar(im, label='p[°]', cax=cax)
     plt.tight_layout()
     plt.show()
-
