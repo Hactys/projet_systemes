@@ -25,12 +25,17 @@ berthaume_path = Path("bertheaume_z.txt")
 if not berthaume_path.exists():
     berthaume_path = Path("./../bertheaume_z.txt")
 
+dunkerque_path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
+if not berthaume_path.exists():
+    berthaume_path = Path("./../Dune2_Dunkerque_Extrait1_50cm.xyz")
 
 data1 = np.loadtxt(sin_card_path)
 data2= np.loadtxt(plateau_path)
 data3= np.loadtxt(plan_path)
 data4 = np.loadtxt(double_sin_path)
 data5 = np.loadtxt(berthaume_path)
+data6 = np.loadtxt(dunkerque_path)
+
 x = np.arange(0, 101)
 y = np.arange(0, 101)
 X, Y = np.meshgrid(x, y)
@@ -50,7 +55,7 @@ cmap = plt.cm.gist_earth_r
 fx_th1, fy_th1 = th1(None)
 mat1 = pente(fx_th1, fy_th1)
 print(f"matrice 1 {mat1}")
-taille_filtre = 15
+taille_filtre = 5
 
 def extraire_fenetre_centree_strict(coord, matrice, taille):
     l_centre, c_centre = coord
@@ -69,7 +74,7 @@ def extraire_fenetre_centree_strict(coord, matrice, taille):
 
 fx_th2, fy_th2 = th4(None)
 # matrice_pente = pente(fx_th2, fy_th2)
-matrice_pente = data5
+matrice_pente = data6
 
 
 H, L = matrice_pente.shape
