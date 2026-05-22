@@ -40,6 +40,11 @@ th2 = lambda _ : (1 - np.tanh((X - 40) / 5)**2, np.zeros_like(Y))
 th3 = lambda _ : (np.full(X.shape, 0.07), np.full(Y.shape, 0.1))
 th4 = lambda _ : (0.5 * np.cos((X / 10) + 3 * np.sin(Y / 20)), 0.75 * np.cos(Y / 20) * np.cos((X / 10) + 3 * np.sin(Y / 20)) + 0.4 * np.cos(Y / 5))
 
+def erreur_angulaire(exp, exp_th):
+    diff = exp - exp_th
+    # On ramène la différence dans l'intervalle [-pi, pi]
+    return np.arctan2(np.sin(diff), np.cos(diff))
+
 
 cmap = plt.cm.bwr
 
@@ -70,9 +75,10 @@ for j, data in enumerate([data1, data2, data3, data4]):
         print(["TPP", "FCN", "Evans", "theorique"][i])
         fx, fy = mth(data)
         exp = exposition(fx, fy)
+        diff = erreur_angulaire(exp, exp_th)
         pmax = 0.1
         normalize = Normalize(-pmax, pmax)
-        im = ax[i//2, i%2].imshow(exp-exp_th, origin='lower', cmap=cmap, norm=normalize)
+        im = ax[i//2, i%2].imshow(diff, origin='lower', cmap=cmap, norm=normalize)
         titre = f"{noms_donnees[j]} - Méthode : {noms_methodes[i]}"
         ax[i // 2, i % 2].set_title(titre)
         divider = make_axes_locatable(ax[i//2, i%2])
