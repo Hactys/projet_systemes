@@ -3,6 +3,7 @@ from pentes_Toma import *
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 sin_card_path = Path("sin_card.txt")
@@ -39,18 +40,45 @@ th2 = lambda _ : (1 - np.tanh((X - 40) / 5)**2, np.zeros_like(Y))
 th3 = lambda _ : (np.full(X.shape, 0.07), np.full(Y.shape, 0.1))
 th4 = lambda _ : (0.5 * np.cos((X / 10) + 3 * np.sin(Y / 20)), 0.75 * np.cos(Y / 20) * np.cos((X / 10) + 3 * np.sin(Y / 20)) + 0.4 * np.cos(Y / 5))
 
+def erreur_angulaire(exp, exp_th):
+    diff = exp - exp_th
+    # On ramène la différence dans l'intervalle [-pi, pi]
+    return np.arctan2(np.sin(diff), np.cos(diff))
 
-cmap = plt.cm.gist_earth
+
+cmap = plt.cm.bwr
 
 noms_donnees = ["sin_card", "plateau", "plan", "double_sin"] #Utile pour les titres des graphiques
 noms_methodes = ["TPP", "FCN", "Evans", "Théorique"] #Utile pour les titres des graphiques
 
-for j, data in enumerate([data1, data2, data3, data4]):
+'''for j, data in enumerate([data1, data2, data3, data4]):
     fig, ax = plt.subplots(2, 2, figsize=(15, 5))
-    for i, mth in enumerate([TPP, FCN, Evans, [th1, th2, th3, th4][j]]):
+    theorique = [th1, th2, th3, th4][j]
+    for i, mth in enumerate([TPP, FCN, Evans, theorique]):
         fx, fy = mth(data)
         exp = exposition(fx, fy)
         im = ax[i//2, i%2].imshow(exp, origin='lower', cmap=cmap)
+        titre = f"{noms_donnees[j]} - Méthode : {noms_methodes[i]}"
+        ax[i // 2, i % 2].set_title(titre)
+        divider = make_axes_locatable(ax[i//2, i%2])
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(im, label='p[°]', cax=cax)
+    plt.tight_layout()
+    plt.show()'''
+
+
+for j, data in enumerate([data1, data2, data3, data4]):
+    fig, ax = plt.subplots(2, 2, figsize=(15, 5))
+    theorique = [th1, th2, th3, th4][j]
+    exp_th=exposition(*theorique(data))
+    for i, mth in enumerate([TPP, FCN, Evans, theorique]):
+        print(["TPP", "FCN", "Evans", "theorique"][i])
+        fx, fy = mth(data)
+        exp = exposition(fx, fy)
+        diff = erreur_angulaire(exp, exp_th)
+        pmax = 0.1
+        normalize = Normalize(-pmax, pmax)
+        im = ax[i//2, i%2].imshow(diff, origin='lower', cmap=cmap, norm=normalize)
         titre = f"{noms_donnees[j]} - Méthode : {noms_methodes[i]}"
         ax[i // 2, i % 2].set_title(titre)
         divider = make_axes_locatable(ax[i//2, i%2])
