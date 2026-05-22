@@ -78,16 +78,3 @@ def pente(fx,fy):
 
 def exposition(fx,fy):
     return math.atan2(-fx,-fy)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

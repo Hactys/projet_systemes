@@ -9,9 +9,12 @@ mpl.rcParams['figure.dpi'] = 175      # augmente la résolution d'affichage
 mpl.rcParams['figure.figsize'] = (8, 6)  # taille par défaut des figures (en pouces)
 
 
-dune_path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
+
+
+
+dune_path = Path("Toma/double_sin.txt") #ATTENTION ICI DOUBLE SIN
 if not dune_path.exists():
-    dune_path = Path("./../Dune2_Dunkerque_Extrait1_50cm.xyz")
+    dune_path = Path("./../double_sin.txt")
 
 
 data = np.loadtxt(dune_path)
@@ -84,9 +87,10 @@ def gradient_evans(data, dx=0.5, dy=0.5):
 
 
 # Plot de comparaison
-grad_tpp   = gradient_tpp(data)
-grad_fcn   = gradient_fcn(data)
-grad_evans = gradient_evans(data)
+grad_tpp   = data-gradient_tpp(data)
+#ATTENTION ICI ON FAIT LA DIFFERENCE AVEC L'OG
+grad_fcn   = data-gradient_fcn(data)
+grad_evans = data-gradient_evans(data)
 
 grad_vmin = min(grad_tpp.min(), grad_fcn.min(), grad_evans.min())
 grad_vmax = max(grad_tpp.max(), grad_fcn.max(), grad_evans.max()) / 4
@@ -109,7 +113,7 @@ fig.colorbar(im_mnt, ax=ax_mnt, label='Altitude [m]')
 
 for ax, title, d in zip(list(axes.flat)[1:], titles[1:], [grad_tpp, grad_fcn, grad_evans]):
     im = ax.imshow(d, origin='lower', extent=extent, aspect='auto',
-                   cmap='inferno', vmin=grad_vmin, vmax=grad_vmax)
+                   cmap='seismic', vmin=grad_vmin, vmax=grad_vmax)
     ax.set_title(title)
     ax.set_xlabel('x')
     ax.set_ylabel('y')

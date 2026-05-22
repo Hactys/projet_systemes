@@ -39,15 +39,16 @@ th2 = lambda _ : (1 - np.tanh((X - 40) / 5)**2, np.zeros_like(Y))
 th3 = lambda _ : (np.full(X.shape, 0.07), np.full(Y.shape, 0.1))
 th4 = lambda _ : (0.5 * np.cos((X / 10) + 3 * np.sin(Y / 20)), 0.75 * np.cos(Y / 20) * np.cos((X / 10) + 3 * np.sin(Y / 20)) + 0.4 * np.cos(Y / 5))
 
-
-cmap = plt.cm.gist_earth
+^0
+$
+cmap = plt.cm.gist_earthqsber,nt;y:uiO
 
 noms_donnees = ["sin_card", "plateau", "plan", "double_sin"] #Utile pour les titres des graphiques
 noms_methodes = ["TPP", "FCN", "Evans", "Théorique"] #Utile pour les titres des graphiques
 
 for j, data in enumerate([data1, data2, data3, data4]):
     fig, ax = plt.subplots(2, 2, figsize=(15, 5))
-    for i, mth in enumerate([TPP, FCN, Evans, [th1-pt, th2, th3, th4][j]]):
+    for i, mth in enumerate([TPP, FCN, Evans, [th1, th2, th3, th4][j]]):
         fx, fy = mth(data)
         pt = pente(fx, fy)
         im = ax[i//2, i%2].imshow(pt, origin='lower', cmap=cmap)
