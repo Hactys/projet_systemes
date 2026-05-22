@@ -21,10 +21,16 @@ double_sin_path = Path("double_sin.txt")
 if not double_sin_path.exists():
     double_sin_path = Path("./../double_sin.txt")
 
+berthaume_path = Path("bertheaume_z.txt")
+if not berthaume_path.exists():
+    berthaume_path = Path("./../bertheaume_z.txt")
+
+
 data1 = np.loadtxt(sin_card_path)
 data2= np.loadtxt(plateau_path)
 data3= np.loadtxt(plan_path)
 data4 = np.loadtxt(double_sin_path)
+data5 = np.loadtxt(berthaume_path)
 x = np.arange(0, 101)
 y = np.arange(0, 101)
 X, Y = np.meshgrid(x, y)
@@ -39,24 +45,56 @@ th2 = lambda _ : (1 - np.tanh((X - 40) / 5)**2, np.zeros_like(Y))
 th3 = lambda _ : (np.full(X.shape, 0.07), np.full(Y.shape, 0.1))
 th4 = lambda _ : (0.5 * np.cos((X / 10) + 3 * np.sin(Y / 20)), 0.75 * np.cos(Y / 20) * np.cos((X / 10) + 3 * np.sin(Y / 20)) + 0.4 * np.cos(Y / 5))
 
-^0
-$
-cmap = plt.cm.gist_earthqsber,nt;y:uiO
 
-noms_donnees = ["sin_card", "plateau", "plan", "double_sin"] #Utile pour les titres des graphiques
-noms_methodes = ["TPP", "FCN", "Evans", "Théorique"] #Utile pour les titres des graphiques
+cmap = plt.cm.gist_earth_r
+fx_th1, fy_th1 = th1(None)
+mat1 = pente(fx_th1, fy_th1)
+print(f"matrice 1 {mat1}")
+taille_filtre = 15
 
-for j, data in enumerate([data1, data2, data3, data4]):
-    fig, ax = plt.subplots(2, 2, figsize=(15, 5))
-    for i, mth in enumerate([TPP, FCN, Evans, [th1, th2, th3, th4][j]]):
-        fx, fy = mth(data)
-        pt = pente(fx, fy)
-        im = ax[i//2, i%2].imshow(pt, origin='lower', cmap=cmap)
-        titre = f"{noms_donnees[j]} - Méthode : {noms_methodes[i]}"
-        ax[i // 2, i % 2].set_title(titre)
-        divider = make_axes_locatable(ax[i//2, i%2])
-        cax = divider.append_axes("right", size="5%", pad=0.05)
-        plt.colorbar(im, label='p[°]', cax=cax)
-    plt.tight_layout()
-    plt.show()
+def extraire_fenetre_centree_strict(coord, matrice, taille):
+    l_centre, c_centre = coord
+    demi_taille = taille // 2
+    H, L = matrice.shape
+    
+    l_min = l_centre - demi_taille
+    l_max = l_centre + demi_taille + 1
+    c_min = c_centre - demi_taille
+    c_max = c_centre + demi_taille + 1
+    
+    if l_min < 0 or l_max > H or c_min < 0 or c_max > L:
+        return np.full((taille, taille), np.nan)
+    
+    return matrice[l_min:l_max, c_min:c_max]
 
+fx_th2, fy_th2 = th4(None)
+# matrice_pente = pente(fx_th2, fy_th2)
+matrice_pente = data5
+
+
+H, L = matrice_pente.shape
+matrice_std = np.zeros((H, L))
+
+for l in range(H):
+    for c in range(L):
+        fenetre = extraire_fenetre_centree_strict((l, c), matrice_pente, taille_filtre)
+        
+        if np.isnan(fenetre).any():
+            matrice_std[l, c] = np.nan
+        else:
+            matrice_std[l, c] = np.std(fenetre)
+
+# 6. Affichage de la matrice d'écart-type
+fig, ax = plt.subplots(figsize=(8, 6))
+
+# On utilise une palette séquentielle comme 'viridis' ou 'magma' pour l'écart-type
+im = ax.imshow(matrice_std, origin='lower', cmap=plt.cm.viridis)
+ax.set_title(f"Écart-type local (Filtre {taille_filtre}x{taille_filtre})")
+
+# Ajout de la colorbar propre
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("right", size="5%", pad=0.05)
+plt.colorbar(im, label='Écart-type de la pente [°]', cax=cax)
+
+plt.tight_layout()
+plt.show()
