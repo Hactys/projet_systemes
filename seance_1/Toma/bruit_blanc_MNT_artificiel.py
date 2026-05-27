@@ -102,3 +102,7 @@ for sigma in SIGMAS:
             plt.colorbar(im, label="σ circ.(exposition) [rad]", cax=cax)
         plt.tight_layout()
         plt.show()
+
+
+#Après analyse des résultats basés sur la méthode de Monte Carlo, on constate une bien meilleure robustesse
+#de la méthode d'Evans, qu'on va alors utiiliser sur notre modèle
