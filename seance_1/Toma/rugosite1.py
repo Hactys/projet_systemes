@@ -55,7 +55,7 @@ cmap = plt.cm.gist_earth_r
 fx_th1, fy_th1 = th1(None)
 mat1 = pente(fx_th1, fy_th1)
 print(f"matrice 1 {mat1}")
-taille_filtre = 5
+taille_filtre = 3
 
 def extraire_fenetre_centree_strict(coord, matrice, taille):
     l_centre, c_centre = coord
