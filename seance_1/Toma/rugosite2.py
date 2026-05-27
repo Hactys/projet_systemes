@@ -4,6 +4,11 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import scipy.ndimage
 
+"""
+FAIRE : 
+from rugosite2 import *
+mat = matrice_rugo()
+"""
 
 dunkerque_path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
 if not dunkerque_path.exists():
@@ -93,7 +98,7 @@ def rugosite(matrice_pente_rad, matrice_exposition_rad, taille_voisinage=3):
 
     return k
 
-def mainne():
+def matrice_rugo():
     fx, fy = Evans(data)
 
     norme_gradient  = np.sqrt(fx**2 + fy**2)
@@ -103,24 +108,25 @@ def mainne():
 
     return mat_rugosite
 
-# matrice_rugueuse = mainne()
-# fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+"""
+matrice_rugueuse = mainne()
+fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
-# # — MNT d'origine
-# ax = axes[0] # *
-# im = ax.imshow(data, origin="lower", cmap="hot_r")
-# ax.set_title("MNT — Altitude (m)")
-# divider = make_axes_locatable(ax)
-# plt.colorbar(im, label="Altitude [m]", cax=divider.append_axes("right", size="5%", pad=0.05))
+# — MNT d'origine
+ax = axes[0] # *
+im = ax.imshow(data, origin="lower", cmap="hot_r")
+ax.set_title("MNT — Altitude (m)")
+divider = make_axes_locatable(ax)
+plt.colorbar(im, label="Altitude [m]", cax=divider.append_axes("right", size="5%", pad=0.05))
 
-# # — Rugosité
-# ax = axes[1] # <- Second axe (anciennement 2)
-# im = ax.imshow(matrice_rugueuse, origin="lower", cmap="hot_r", vmin=0, vmax=np.nanpercentile(matrice_rugueuse, 99))
-# ax.set_title("Rugosité — Dispersion vecteurs normaux 3×3")
-# divider = make_axes_locatable(ax)
-# plt.colorbar(im, label="Indice de rugosité k", cax=divider.append_axes("right", size="5%", pad=0.05))
+# — Rugosité
+ax = axes[1] # <- Second axe (anciennement 2)
+im = ax.imshow(matrice_rugueuse, origin="lower", cmap="hot_r", vmin=0, vmax=np.nanpercentile(matrice_rugueuse, 99))
+ax.set_title("Rugosité — Dispersion vecteurs normaux 3×3")
+divider = make_axes_locatable(ax)
+plt.colorbar(im, label="Indice de rugosité k", cax=divider.append_axes("right", size="5%", pad=0.05))
 
-# plt.suptitle("Analyse de surface — Dunkerque (résolution 50 cm)", fontsize=13, y=1.02)
-# plt.tight_layout()
-# plt.show()
-
+plt.suptitle("Analyse de surface — Dunkerque (résolution 50 cm)", fontsize=13, y=1.02)
+plt.tight_layout()
+plt.show()
+"""
