@@ -100,52 +100,52 @@ def classification_dikau(kv, kh, seuil=0.001):
 
 
 # Affichage
+if __name__ == "__main__":
+    path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
+    mnt = np.loadtxt(path)
 
-path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
-mnt = np.loadtxt(path)
+    # IMPORTANT :
+    # léger lissage sinon énormément de bruit
+    mnt_lisse = gaussian_filter(mnt, sigma=1.2)
 
-# IMPORTANT :
-# léger lissage sinon énormément de bruit
-mnt_lisse = gaussian_filter(mnt, sigma=1.2)
+    kv, kh = courbures_verticale_horizontale(mnt_lisse)
 
-kv, kh = courbures_verticale_horizontale(mnt_lisse)
+    classes = classification_dikau(kv, kh, seuil=0.0005)
 
-classes = classification_dikau(kv, kh, seuil=0.0005)
+    labels = [
+        "Sommet",
+        "Crête",
+        "Passe",
+        "Épaulement",
+        "Plan",
+        "Chenal",
+        "Pied",
+        "Vallée",
+        "Cuvette"
+    ]
 
-labels = [
-    "Sommet",
-    "Crête",
-    "Passe",
-    "Épaulement",
-    "Plan",
-    "Chenal",
-    "Pied",
-    "Vallée",
-    "Cuvette"
-]
+    cmap = ListedColormap([
+        "red",
+        "orange",
+        "yellow",
+        "lime",
+        "lightgray",
+        "cyan",
+        "blue",
+        "purple",
+        "black"
+    ])
 
-cmap = ListedColormap([
-    "red",
-    "orange",
-    "yellow",
-    "lime",
-    "lightgray",
-    "cyan",
-    "blue",
-    "purple",
-    "black"
-])
+    plt.figure(figsize=(10, 8))
 
-plt.figure(figsize=(10, 8))
+    im = plt.imshow(classes, origin="lower", cmap=cmap)
 
-im = plt.imshow(classes, origin="lower", cmap=cmap)
+    cbar = plt.colorbar(im)
+    cbar.set_ticks(range(9))
+    cbar.set_ticklabels(labels)
 
-cbar = plt.colorbar(im)
-cbar.set_ticks(range(9))
-cbar.set_ticklabels(labels)
+    plt.title("Classification de Dikau")
+    plt.xlabel("x")
+    plt.ylabel("y")
 
-plt.title("Classification de Dikau")
-plt.xlabel("x")
-plt.ylabel("y")
-
-plt.show()
+    plt.show()
