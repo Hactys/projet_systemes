@@ -51,7 +51,7 @@ th3 = lambda _ : (np.full(X.shape, 0.07), np.full(Y.shape, 0.1))
 th4 = lambda _ : (0.5 * np.cos((X / 10) + 3 * np.sin(Y / 20)), 0.75 * np.cos(Y / 20) * np.cos((X / 10) + 3 * np.sin(Y / 20)) + 0.4 * np.cos(Y / 5))
 
 
-cmap = plt.cm.gist_earth_r
+cmap = plt.cm.hot_r
 fx_th1, fy_th1 = th1(None)
 mat1 = pente(fx_th1, fy_th1)
 print(f"matrice 1 {mat1}")
