@@ -9,9 +9,8 @@ y = np.arange(0, 1237)
 X, Y = np.meshgrid(x, y)
 
 mnt = np.loadtxt('Dune2_Dunkerque_Extrait1_50cm.xyz')
-cmap = plt.cm.gist_earth
+cmap = plt.cm.gist_earth_r
 img = plt.contourf(X, Y, mnt, levels=100, cmap=cmap)
-plt.contour(X, Y, mnt, levels=5, colors='black')
 
 plt.title('DuneDunkerque')
 plt.colorbar(img,label='Altitude [m]')
