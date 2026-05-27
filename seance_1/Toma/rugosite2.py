@@ -26,7 +26,7 @@ data[data < NODATA_THRESHOLD] = np.nan
 # ==========================================
 # 2. GRADIENTS — MÉTHODE D'EVANS
 # ==========================================
-def Evans(mnt, s=1.0):
+def Evans(mnt, s=0.50):
     """Calcule les gradients fx et fy avec la méthode d'Evans (3×3)."""
     matx = np.full_like(mnt, np.nan, dtype=float)
     maty = np.full_like(mnt, np.nan, dtype=float)
@@ -108,8 +108,8 @@ def matrice_rugo():
 
     return mat_rugosite
 
-"""
-matrice_rugueuse = mainne()
+
+matrice_rugueuse = matrice_rugo()
 fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
 # — MNT d'origine
@@ -129,4 +129,3 @@ plt.colorbar(im, label="Indice de rugosité k", cax=divider.append_axes("right",
 plt.suptitle("Analyse de surface — Dunkerque (résolution 50 cm)", fontsize=13, y=1.02)
 plt.tight_layout()
 plt.show()
-"""
