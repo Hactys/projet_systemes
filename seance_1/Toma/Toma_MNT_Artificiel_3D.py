@@ -89,7 +89,7 @@ colors_p = plt.cm.seismic(p)
 
 # Tracé de la surface avec les couleurs plaquées
 surf1 = ax1.plot_surface(X, Y, Z, facecolors=colors_p, rstride=1, cstride=1, shade=False, norm=norm_p)
-ax1.set_title("MNT 3D - Double sin -  Pentes (Evans)")
+ax1.set_title("MNT 3D - Double sin - Pentes (Evans)")
 ax1.set_zlabel("Élévation (Z)")
 
 # Ajout d'une barre de couleur (nécessite un objet mappable artificiel)
