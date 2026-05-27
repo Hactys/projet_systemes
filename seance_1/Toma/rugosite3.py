@@ -34,7 +34,6 @@ def std_local_strict(matrice, taille):
 
 # --- 4. Affichage du premier graphique (Origine vs Filtré à 0.5) ---
 filtered_matrice_init = scipy.ndimage.gaussian_filter(matrice_pente, 5.0)
-matrice_residuelle = filtered_matrice_init - matrice_pente
 
 fig1, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
@@ -51,7 +50,4 @@ cax2 = divider2.append_axes("right", size="5%", pad=0.05)
 plt.colorbar(im2, label='Écart-type de la pente [°]', cax=cax2)
 plt.tight_layout()
 
-
-
-# Un seul show à la fin pour ouvrir toutes les fenêtres en même temps
 plt.show()
