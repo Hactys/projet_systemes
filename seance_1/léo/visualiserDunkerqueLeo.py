@@ -14,7 +14,7 @@ img = plt.contourf(X, Y, mnt, levels=100, cmap=cmap)
 
 plt.title('DuneDunkerque')
 plt.colorbar(img,label='Altitude [m]')
-
+print(f"ici : {mnt.shape}")
 '''
 #3D
 #dimensions
@@ -65,4 +65,5 @@ plt.title('Histogramme des profondeurs - Dune2Dunkerque')
 plt.xlabel('Altitude [m]')
 plt.ylabel('Nombre de points')
 plt.grid(axis='y', alpha=0.75)
+print()
 plt.show()

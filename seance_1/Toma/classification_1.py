@@ -9,9 +9,9 @@ from rugosite2 import matrice_rugo
 
 class Terrain:
     PLAT = 0
-    DEPRESSION = 1
-    CRETE = 3
-    PENTE = 2
+    P_DOUCE = 1
+    P_RAIDE = 3
+    CRETE = 2
     RIDULE = 4
     LISSE = 5
     DEEPFLAT = 6
@@ -32,9 +32,9 @@ def classif_1(mnt):
     flat_mask  = ~nan_mask & ~dep_mask & ~pente_mask & (pts < 0.18)
     crete_mask = ~nan_mask & ~dep_mask & ~pente_mask & (pts >= 0.18)
 
-    classe[dep_mask]                            = Terrain.DEPRESSION
-    classe[pente_mask]                          = Terrain.PENTE
-    classe[crete_mask]                          = Terrain.CRETE
+    classe[dep_mask]                            = Terrain.P_DOUCE
+    classe[pente_mask]                          = Terrain.CRETE
+    classe[crete_mask]                          = Terrain.P_RAIDE
     classe[flat_mask & (mnt < -33)]             = Terrain.DEEPFLAT
     classe[flat_mask & (mnt > -27)]             = Terrain.SHALLOWFLAT
     classe[flat_mask & (mnt >= -33) & (mnt <= -27)] = Terrain.MIDFLAT
@@ -91,20 +91,19 @@ def afficher_classifications(mnt):
         return cmap(norm(val))
 
     legend_elements = [
-        Patch(facecolor=c(Terrain.DEPRESSION),  edgecolor="k", label="Versant abrupte"),
-        Patch(facecolor=c(Terrain.PENTE),        edgecolor="k", label="Versant doux"),
+        Patch(facecolor=c(Terrain.P_DOUCE),  edgecolor="k", label="Pente Douce"),
         Patch(facecolor=c(Terrain.CRETE),        edgecolor="k", label="Crête"),
+        Patch(facecolor=c(Terrain.P_RAIDE),        edgecolor="k", label="Pente raide"),
         Patch(facecolor=c(Terrain.DEEPFLAT),     edgecolor="k", label="Deep Flat"),
         Patch(facecolor=c(Terrain.MIDFLAT),      edgecolor="k", label="Mid Flat"),
         Patch(facecolor=c(Terrain.SHALLOWFLAT),  edgecolor="k", label="Shallow Flat"),
         Patch(facecolor=c(Terrain.NAN),          edgecolor="k", label="NaN / bord"),
-        Patch(facecolor="none", edgecolor="k", hatch="///", label="Ridules (hachures)"),
         Patch(facecolor="red", edgecolor="k", label="Rugosité")
     ]
 
     ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc="upper left")
     im_rugo = ax.imshow(rugo_haute, cmap="Reds", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
-    np.savetxt("test_mat.txt",)
+    np.savetxt("test_mat.txt",classif1,fmt = "%d")
     plt.tight_layout()
     plt.show()
 
