@@ -109,6 +109,7 @@ def matrice_rugo():
     return mat_rugosite
 
 matrice_rugueuse = matrice_rugo()
+"""
 fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
 # — MNT d'origine
@@ -128,3 +129,4 @@ plt.colorbar(im, label="Indice de rugosité k", cax=divider.append_axes("right",
 plt.suptitle("Analyse de surface — Dunkerque (résolution 50 cm)", fontsize=13, y=1.02)
 plt.tight_layout()
 plt.show()
+"""
