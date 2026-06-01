@@ -21,20 +21,22 @@ class Terrain:
 
 
 def classif_1(mnt):
-    bpi = calcul_BPI(mnt, r=40)
+    bpi = calcul_BPI(mnt, r=75)
     # FIX : initialiser à NAN plutôt qu'à 0 pour éviter des pixels PLAT parasites
     classe = np.full_like(mnt, Terrain.NAN, dtype=float)
     pts = pente(*Evans(mnt))
 
     nan_mask  = np.isnan(bpi)
-    dep_mask  = ~nan_mask & (bpi <= -0.4)
+    # dep_mask  = ~nan_mask & (bpi <= -0.4)
     pente_mask = ~nan_mask & (bpi >= 0.5)
-    flat_mask  = ~nan_mask & ~dep_mask & ~pente_mask & (pts < 0.18)
-    crete_mask = ~nan_mask & ~dep_mask & ~pente_mask & (pts >= 0.18)
+    # bpi
+    flat_mask  = ~nan_mask & (pts < 0.05)
+    pt_raide = ~nan_mask & (pts >= 0.15) & 
+    pt_doux = ~nan_mask & ~flat_mask & ~pt_raide
 
-    classe[dep_mask]                            = Terrain.P_DOUCE
+    classe[pt_doux]                            = Terrain.P_DOUCE
     classe[pente_mask]                          = Terrain.CRETE
-    classe[crete_mask]                          = Terrain.P_RAIDE
+    classe[pt_raide]                          = Terrain.P_RAIDE
     classe[flat_mask & (mnt < -33)]             = Terrain.DEEPFLAT
     classe[flat_mask & (mnt > -27)]             = Terrain.SHALLOWFLAT
     classe[flat_mask & (mnt >= -33) & (mnt <= -27)] = Terrain.MIDFLAT
@@ -62,11 +64,11 @@ def afficher_classifications(mnt):
     classif1 = classif_1(mnt)
     # classif2 = classif_2(mnt)
     print("calcul de rugo en cours")
-    mat_rugo = matrice_rugo()
+    #mat_rugo = matrice_rugo()
     print("calcul rugo fini")
-    mat_rugo = mat_rugo[::-1, ::]
+    #mat_rugo = mat_rugo[::-1, ::]
 
-    rugo_haute = np.where(mat_rugo > 0.006, 1, np.nan)
+    #rugo_haute = np.where(mat_rugo > 0.006, 1, np.nan)
 
     _, ax = plt.subplots(figsize=(12, 6))
 
@@ -96,11 +98,11 @@ def afficher_classifications(mnt):
         Patch(facecolor=c(Terrain.MIDFLAT),      edgecolor="k", label="Mid Flat"),
         Patch(facecolor=c(Terrain.SHALLOWFLAT),  edgecolor="k", label="Shallow Flat"),
         Patch(facecolor=c(Terrain.NAN),          edgecolor="k", label="NaN / bord"),
-        Patch(facecolor="red", edgecolor="k", label="Rugosité")
+        #Patch(facecolor="blue", edgecolor="k", label="Rugosité")
     ]
 
     ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc="upper left")
-    im_rugo = ax.imshow(rugo_haute, cmap="Reds", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
+    #im_rugo = ax.imshow(rugo_haute, cmap="Blues", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
     np.savetxt("test_mat.txt",classif1,fmt = "%d")
     plt.tight_layout()
     plt.show()
