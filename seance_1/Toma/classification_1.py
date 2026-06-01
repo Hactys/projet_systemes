@@ -46,14 +46,12 @@ def classif_2(mnt):
     # FIX : initialiser à NAN plutôt qu'à 0
     classe = np.full_like(mnt, Terrain.NAN, dtype=float)
 
-    for i in range(bpi.shape[0]):
-        for j in range(bpi.shape[1]):
-            if np.isnan(bpi[i, j]):
-                classe[i, j] = Terrain.NAN
-            elif bpi[i, j] <= -1 or bpi[i, j] >= 1:
-                classe[i, j] = Terrain.RIDULE
-            else:
-                classe[i, j] = Terrain.LISSE
+    nan_mask   = np.isnan(bpi)
+    ridule_mask = ~nan_mask & ((bpi <= -1) | (bpi >= 1))
+    lisse_mask  = ~nan_mask & ~ridule_mask
+
+    classe[ridule_mask] = Terrain.RIDULE
+    classe[lisse_mask]  = Terrain.LISSE
     return classe
 
 
