@@ -1,5 +1,5 @@
 """
-Fonctions importantes — Séance 1 : Analyse de Modèles Numériques de Terrain (MNT)
+Fonctions importantes : Analyse de Modèles Numériques de Terrain (MNT)
 
 Ce module regroupe toutes les fonctions clés développées durant la séance 1,
 organisées en 5 grandes catégories :
@@ -346,11 +346,9 @@ def _disk_kernel(r):
         Valeurs 1.0 pour les pixels dans le disque (0 < d² ≤ r²), 0.0 ailleurs.
     """
     D = 2*r + 1
-    kernel = np.zeros((D, D))
-    for di in range(-r, r+1):
-        for dj in range(-r, r+1):
-            if 0 < di**2 + dj**2 <= r**2:
-                kernel[r+di, r+dj] = 1.0
+    di, dj = np.ogrid[-r:r+1, -r:r+1]
+    d2 = di**2 + dj**2
+    kernel = ((d2 > 0) & (d2 <= r**2)).astype(float)
     return kernel
 
 
@@ -496,12 +494,13 @@ def classification_dikau(kv, kh, seuil=0.001):
         (-1, -1): 8,   # cuvette
     }
 
-    classes = np.full(kv.shape, -1, dtype=int)
     nan_mask = np.isnan(kv) | np.isnan(kh)
-
-    for (v, h), code in table.items():
-        mask = (sv == v) & (sh == h) & ~nan_mask
-        classes[mask] = code
+    # Encodage arithmétique : sv ∈ {-1,0,1}, sh ∈ {-1,0,1} → index unique dans [0,8]
+    # (sv+1)*3 + (sh+1) donne 0..8 pour les 9 combinaisons
+    lut = np.array([8, 7, 6, 5, 4, 3, 2, 1, 0])  # concave/plat/convexe × concave/plat/convexe
+    idx = (sv + 1) * 3 + (sh + 1)
+    classes = lut[idx]
+    classes[nan_mask] = -1
 
     return classes
 
@@ -551,20 +550,13 @@ def classif_1(mnt):
     """
     bpi  = calcul_BPI(mnt, r=30)
     pts  = pente(*Evans(mnt))
-    classe = np.zeros_like(mnt, dtype=int)
+    nan_mask = np.isnan(bpi)
 
-    for i in range(bpi.shape[0]):
-        for j in range(bpi.shape[1]):
-            if np.isnan(bpi[i, j]):
-                classe[i, j] = -1
-            elif bpi[i, j] <= -1:
-                classe[i, j] = Terrain.DEPRESSION
-            elif bpi[i, j] >= 1:
-                classe[i, j] = Terrain.CRETE
-            elif pts[i, j] < 0.18:
-                classe[i, j] = Terrain.PLAT
-            else:
-                classe[i, j] = Terrain.PENTE
+    classe = np.full_like(mnt, Terrain.PLAT, dtype=int)
+    classe[~nan_mask & (pts >= 0.18)] = Terrain.PENTE
+    classe[~nan_mask & (bpi <= -1)]   = Terrain.DEPRESSION
+    classe[~nan_mask & (bpi >= 1)]    = Terrain.CRETE
+    classe[nan_mask]                  = -1
 
     return classe
 
@@ -588,17 +580,12 @@ def classif_2(mnt):
     classe : np.ndarray (H, W), int
         Terrain.DUNE (4) ou Terrain.PAS_DUNE (5). -1 = pixel invalide/bord.
     """
-    bpi   = calcul_BPI(mnt, r=7)
-    classe = np.zeros_like(mnt, dtype=int)
+    bpi      = calcul_BPI(mnt, r=7)
+    nan_mask = np.isnan(bpi)
 
-    for i in range(bpi.shape[0]):
-        for j in range(bpi.shape[1]):
-            if np.isnan(bpi[i, j]):
-                classe[i, j] = -1
-            elif abs(bpi[i, j]) >= 1:
-                classe[i, j] = Terrain.DUNE
-            else:
-                classe[i, j] = Terrain.PAS_DUNE
+    classe = np.full_like(mnt, Terrain.PAS_DUNE, dtype=int)
+    classe[~nan_mask & (np.abs(bpi) >= 1)] = Terrain.DUNE
+    classe[nan_mask]                        = -1
 
     return classe
 
