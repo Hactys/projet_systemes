@@ -26,24 +26,18 @@ def classif_1(mnt):
     classe = np.full_like(mnt, Terrain.NAN, dtype=float)
     pts = pente(*Evans(mnt))
 
-    for i in range(bpi.shape[0]):
-        for j in range(bpi.shape[1]):
-            if np.isnan(bpi[i, j]):
-                classe[i, j] = Terrain.NAN
-            elif bpi[i, j] <= -0.4:
-                classe[i, j] = Terrain.DEPRESSION
-            elif bpi[i, j] >= 0.5:
-                classe[i, j] = Terrain.PENTE
-            else:
-                if pts[i, j] < 0.18:
-                    if mnt[i, j] < -33:
-                        classe[i, j] = Terrain.DEEPFLAT
-                    elif mnt[i, j] > -27:
-                        classe[i, j] = Terrain.SHALLOWFLAT
-                    else:
-                        classe[i, j] = Terrain.MIDFLAT
-                else:
-                    classe[i, j] = Terrain.CRETE
+    nan_mask  = np.isnan(bpi)
+    dep_mask  = ~nan_mask & (bpi <= -0.4)
+    pente_mask = ~nan_mask & (bpi >= 0.5)
+    flat_mask  = ~nan_mask & ~dep_mask & ~pente_mask & (pts < 0.18)
+    crete_mask = ~nan_mask & ~dep_mask & ~pente_mask & (pts >= 0.18)
+
+    classe[dep_mask]                            = Terrain.DEPRESSION
+    classe[pente_mask]                          = Terrain.PENTE
+    classe[crete_mask]                          = Terrain.CRETE
+    classe[flat_mask & (mnt < -33)]             = Terrain.DEEPFLAT
+    classe[flat_mask & (mnt > -27)]             = Terrain.SHALLOWFLAT
+    classe[flat_mask & (mnt >= -33) & (mnt <= -27)] = Terrain.MIDFLAT
     return classe
 
 
