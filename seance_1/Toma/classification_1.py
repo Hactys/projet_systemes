@@ -110,6 +110,7 @@ def afficher_classifications(mnt):
 
     ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc="upper left")
     im_rugo = ax.imshow(rugo_haute, cmap="Reds", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
+    np.savetxt("test_mat.txt",)
     plt.tight_layout()
     plt.show()
 
