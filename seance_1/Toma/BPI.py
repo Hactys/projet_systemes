@@ -3,34 +3,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import TwoSlopeNorm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy.ndimage import convolve
 
 
-def disk_offsets(r):
-    #distance au pixel central
-    return [(di, dj)
-            for di in range(-r, r + 1)
-            for dj in range(-r, r + 1)
-            if 0 < di**2 + dj**2 <= r**2]
+def _disk_kernel(r):
+    D = 2 * r + 1
+    kernel = np.zeros((D, D))
+    for di in range(-r, r + 1):
+        for dj in range(-r, r + 1):
+            if 0 < di**2 + dj**2 <= r**2:
+                kernel[r + di, r + dj] = 1.0
+    return kernel
 
 
 def moyenne_voisins_disque(mat, r=3):
-    rows, cols = mat.shape
-    offsets = disk_offsets(r)
-    k = len(offsets)
-    stack = np.full((rows, cols, k), np.nan)
+    kernel = _disk_kernel(r)
+    k = int(kernel.sum())
 
-    for idx, (di, dj) in enumerate(offsets):
-        ri0, ri1 = max(0, -di), min(rows, rows - di)
-        rj0, rj1 = max(0, -dj), min(cols, cols - dj)
-        si0, si1 = max(0,  di), min(rows, rows + di)
-        sj0, sj1 = max(0,  dj), min(cols, cols + dj)
-        stack[ri0:ri1, rj0:rj1, idx] = mat[si0:si1, sj0:sj1]
+    mat_filled = np.where(np.isnan(mat), 0.0, mat)
+    valid = (~np.isnan(mat)).astype(float)
 
-    # Nombre de voisins effectivement disponibles pour chaque pixel
-    nb_voisins_presents = np.sum(~np.isnan(stack), axis=2)
+    sum_vals = convolve(mat_filled, kernel, mode="constant", cval=0.0)
+    count_vals = convolve(valid, kernel, mode="constant", cval=0.0)
 
-    # On ne calcule la moyenne que si le disque est complet
-    moy = np.where(nb_voisins_presents == k, np.nanmean(stack, axis=2), np.nan)
+    # Moyenne uniquement si le disque est entièrement valide (même condition qu'avant)
+    moy = np.where(np.round(count_vals) == k, sum_vals / k, np.nan)
     return moy
 
 

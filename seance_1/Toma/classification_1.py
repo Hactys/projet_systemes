@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 
 from BPI import calcul_BPI
 from pentes_Toma import pente, Evans
@@ -55,6 +56,7 @@ def classif_2(mnt):
 
 # affichage des 2 classifications dasn le même graphique avec la classif 1 en couleur pleine et la classif 2 en hachurage
 def afficher_classifications(mnt):
+    mnt = mnt[::-1, ::]
     classif1 = classif_1(mnt)
     classif2 = classif_2(mnt)
 
@@ -66,15 +68,30 @@ def afficher_classifications(mnt):
     # Classif 2 : hachures sur les zones DUNE
     # imshow inverts the y-axis, contourf aligns naturally in those coordinates
     dune_mask = (classif2 == Terrain.DUNE).astype(float)
-    ax.contourf(dune_mask, levels=[0.5, 1.5], hatches=["///"], colors="none", alpha=0)
+    ax.contourf(dune_mask, levels=[0.5, 1.5], hatches=["///"], colors="black", alpha=0)
 
     # Restaurer les limites définies par imshow (contourf peut les modifier)
     h, w = classif1.shape
     ax.set_xlim(-0.5, w - 0.5)
     ax.set_ylim(h - 0.5, -0.5)
 
-    plt.colorbar(im, ax=ax, ticks=range(6), label="Classe de terrain")
     ax.set_title("Classification des terrains")
+
+    cmap = plt.cm.tab10
+    norm = plt.Normalize(vmin=0, vmax=5)
+    def c(val):
+        return cmap(norm(val))
+
+    legend_elements = [
+        Patch(facecolor=c(Terrain.PLAT),       edgecolor="k", label="Plat"),
+        Patch(facecolor=c(Terrain.DEPRESSION),  edgecolor="k", label="Dépression"),
+        Patch(facecolor=c(Terrain.CRETE),       edgecolor="k", label="Crête"),
+        Patch(facecolor=c(Terrain.PENTE),       edgecolor="k", label="Pente"),
+        Patch(facecolor=c(Terrain.DUNE),        edgecolor="k", label="Dune"),
+        Patch(facecolor=c(Terrain.PAS_DUNE),    edgecolor="k", label="Pas dune"),
+        Patch(facecolor="none", edgecolor="k", hatch="///", label="Dune (hachures)"),
+    ]
+    ax.legend(handles=legend_elements, loc="upper right")
     plt.tight_layout()
     plt.show()
 
