@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fledermaus-scene version="1" last-known-path="D:/HYO/OKOK.qscene" wkt="PROJCS[&quot;RGF93 v1 / Lambert-93&quot;,GEOGCS[&quot;RGF93 v1&quot;,DATUM[&quot;Reseau Geodesique Francais 1993 v1&quot;,SPHEROID[&quot;GRS 1980&quot;,6378137,298.257222101,AUTHORITY[&quot;EPSG&quot;,&quot;7019&quot;]],AUTHORITY[&quot;EPSG&quot;,&quot;6171&quot;]],PRIMEM[&quot;Greenwich&quot;,0,AUTHORITY[&quot;EPSG&quot;,&quot;8901&quot;]],UNIT[&quot;degree&quot;,0.0174532925199433,AUTHORITY[&quot;EPSG&quot;,&quot;9102&quot;]],AUTHORITY[&quot;EPSG&quot;,&quot;4171&quot;]],PROJECTION[&quot;Lambert Conformal Conic 2SP&quot;,AUTHORITY[&quot;EPSG&quot;,&quot;9802&quot;]],PARAMETER[&quot;latitude_of_origin&quot;,46.5],PARAMETER[&quot;central_meridian&quot;,3],PARAMETER[&quot;false_easting&quot;,700000],PARAMETER[&quot;false_northing&quot;,6600000],PARAMETER[&quot;standard_parallel_1&quot;,49],PARAMETER[&quot;standard_parallel_2&quot;,44],UNIT[&quot;meter&quot;,1,AUTHORITY[&quot;EPSG&quot;,&quot;9001&quot;]],AUTHORITY[&quot;EPSG&quot;,&quot;2154&quot;]]" last-used-id="6" vertical-exaggeration="1" vertical-exaggeration-locked="0" current-time="0.000" time-window-length="5.000" background-color="#000000" foreground-color="#ffffff" x-min="-0.240385" x-max="615.144231" y-min="-0.240385" y-max="615.144231" z-min="-37.046326" z-max="0.000000">
+	<objects>
+		<object name="test_mat.scalar" id="5" hidden="true" file-path="test_mat.scalar"/>
+		<object name="Dune2_Dunkerque_Extrait1_50cm.statgrid" id="6" file-path="Dune2_Dunkerque_Extrait1_50cm.statgrid"/>
+	</objects>
+	<space-time-notes/>
+	<slides aspect-ratio="1.33333"/>
+	<video-sources selected=""/>
+	<external-data-sources/>
+</fledermaus-scene>
