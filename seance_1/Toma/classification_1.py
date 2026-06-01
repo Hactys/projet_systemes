@@ -12,14 +12,14 @@ from pentes_Toma import pente, Evans
 class Terrain:
     PLAT = 0
     DEPRESSION = 1
-    CRETE = 2
-    PENTE = 3
-    DUNE = 4
-    PAS_DUNE = 5
+    CRETE = 3
+    PENTE = 2
+    RIDULE = 4
+    LISSE = 5
 
 
 def classif_1(mnt):
-    bpi = calcul_BPI(mnt, r=30)
+    bpi = calcul_BPI(mnt, r=50)
     classe = np.zeros_like(mnt)
     pts = pente(*Evans(mnt))
     # parcourir les bpi pour trier les points
@@ -27,20 +27,20 @@ def classif_1(mnt):
         for j in range(bpi.shape[1]):
             if np.isnan(bpi[i, j]):
                 classe[i, j] = -1  # bord ou point invalide
-            elif bpi[i, j] <= -1:
+            elif bpi[i, j] <= -0.4:
                 classe[i, j] = Terrain.DEPRESSION
-            elif bpi[i, j] >= 1:
-                classe[i, j] = Terrain.CRETE
+            elif bpi[i, j] >= 0.5:
+                classe[i, j] = Terrain.PENTE
             else:
                 if pts[i, j] < 0.18:
                     classe[i, j] = Terrain.PLAT
                 else:
-                    classe[i, j] = Terrain.PENTE
+                    classe[i, j] = Terrain.CRETE
     return classe
 
 
 def classif_2(mnt):
-    bpi = calcul_BPI(mnt, r=7)
+    bpi = calcul_BPI(mnt, r=5)
     classe = np.zeros_like(mnt)
     # parcourir les bpi pour trier les points
     for i in range(bpi.shape[0]):
@@ -48,9 +48,9 @@ def classif_2(mnt):
             if np.isnan(bpi[i, j]):
                 classe[i, j] = -1  # bord ou point invalide
             elif bpi[i, j] <= -1 or bpi[i, j] >= 1:
-                classe[i, j] = Terrain.DUNE
+                classe[i, j] = Terrain.RIDULE
             else:
-                classe[i, j] = Terrain.PAS_DUNE
+                classe[i, j] = Terrain.LISSE
     return classe
 
 
@@ -67,8 +67,8 @@ def afficher_classifications(mnt):
 
     # Classif 2 : hachures sur les zones DUNE
     # imshow inverts the y-axis, contourf aligns naturally in those coordinates
-    dune_mask = (classif2 == Terrain.DUNE).astype(float)
-    ax.contourf(dune_mask, levels=[0.5, 1.5], hatches=["///"], colors="black", alpha=0)
+    dune_mask = (classif2 == Terrain.RIDULE).astype(float)
+    ax.contour(dune_mask, levels=[0.5], colors="black", hatches=["///"], linewidths=0)
 
     # Restaurer les limites définies par imshow (contourf peut les modifier)
     h, w = classif1.shape
@@ -87,11 +87,10 @@ def afficher_classifications(mnt):
         Patch(facecolor=c(Terrain.DEPRESSION),  edgecolor="k", label="Dépression"),
         Patch(facecolor=c(Terrain.CRETE),       edgecolor="k", label="Crête"),
         Patch(facecolor=c(Terrain.PENTE),       edgecolor="k", label="Pente"),
-        Patch(facecolor=c(Terrain.DUNE),        edgecolor="k", label="Dune"),
-        Patch(facecolor=c(Terrain.PAS_DUNE),    edgecolor="k", label="Pas dune"),
-        Patch(facecolor="none", edgecolor="k", hatch="///", label="Dune (hachures)"),
+        Patch(facecolor="none", edgecolor="k", hatch="///", label="Ridules (hachures)"),
     ]
-    ax.legend(handles=legend_elements, loc="upper right")
+    ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc='upper left')
+    print(f"Nombre de pixels 'Dune' trouvés : {np.sum(dune_mask)}")
     plt.tight_layout()
     plt.show()
 
