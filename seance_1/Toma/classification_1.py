@@ -29,14 +29,14 @@ def classif_1(mnt):
     nan_mask  = np.isnan(bpi)
     # dep_mask  = ~nan_mask & (bpi <= -0.4)
     pente_mask = ~nan_mask & (bpi >= 0.5)
-    # bpi
+    # bpi_mask
     flat_mask  = ~nan_mask & (pts < 0.05)
     pt_raide = ~nan_mask & (pts >= 0.15) & 
     pt_doux = ~nan_mask & ~flat_mask & ~pt_raide
 
-    classe[pt_doux]                            = Terrain.P_DOUCE
+    classe[pt_doux]                             = Terrain.P_DOUCE
     classe[pente_mask]                          = Terrain.CRETE
-    classe[pt_raide]                          = Terrain.P_RAIDE
+    classe[pt_raide]                            = Terrain.P_RAIDE
     classe[flat_mask & (mnt < -33)]             = Terrain.DEEPFLAT
     classe[flat_mask & (mnt > -27)]             = Terrain.SHALLOWFLAT
     classe[flat_mask & (mnt >= -33) & (mnt <= -27)] = Terrain.MIDFLAT
