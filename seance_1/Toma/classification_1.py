@@ -101,11 +101,11 @@ def afficher_classifications(mnt):
         Patch(facecolor=cmap(Terrain.SHALLOWFLAT),  edgecolor="k", label="Shallow Flat"),
         Patch(facecolor=cmap(Terrain.DUNE_FOOT),      edgecolor="k", label="Pied de dune"),
         Patch(facecolor=cmap(Terrain.NAN),          edgecolor="k", label="NaN / bord"),
-        Patch(facecolor="blue", edgecolor="k", label="Rugosité")
+        Patch(facecolor="black", edgecolor="k", label="Rugosité")
     ]
 
     ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc="upper left")
-    # im_rugo = ax.imshow(rugo_haute, cmap="Blues", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
+    im_rugo = ax.imshow(rugo_haute, cmap="Blues", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
     np.savetxt("test_mat.txt",classif1,fmt = "%d")
     plt.tight_layout()
     plt.show()

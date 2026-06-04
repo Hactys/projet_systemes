@@ -55,7 +55,7 @@ cmap = plt.cm.hot_r
 fx_th1, fy_th1 = th1(None)
 mat1 = pente(fx_th1, fy_th1)
 print(f"matrice 1 {mat1}")
-taille_filtre = 15
+taille_filtre = 3
 
 def extraire_fenetre_centree_strict(coord, matrice, taille):
     l_centre, c_centre = coord
@@ -93,7 +93,7 @@ for l in range(H):
 fig, ax = plt.subplots(figsize=(8, 6))
 
 # On utilise une palette séquentielle comme 'viridis' ou 'magma' pour l'écart-type
-im = ax.imshow(matrice_std, origin='lower', cmap=plt.cm.viridis)
+im = ax.imshow(matrice_std, origin='lower', cmap=plt.cm.hot_r)
 ax.set_title(f"Écart-type local (Filtre {taille_filtre}x{taille_filtre})")
 
 # Ajout de la colorbar propre
