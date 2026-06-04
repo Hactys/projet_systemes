@@ -85,7 +85,7 @@ def afficher_classifications(mnt):
 
     # Classif 2 : hachures sur les zones RIDULE (commenté)
     # dune_mask = (classif2 == Terrain.RIDULE).astype(float)
-    ax.contour(dune_mask, levels=[0.5], colors="black", hatches=["///"], linewidths=0)
+    # ax.contour(dune_mask, levels=[0.5], colors="black", hatches=["///"], linewidths=0)
 
     h, w = classif1.shape
     ax.set_xlim(-0.5, w - 0.5)
@@ -116,9 +116,10 @@ def resolve(name):
 
 
 
-
 data1 = np.load("Dune2_Dunkerque_Extrait1_50cm.npy")
 print("Affichage des classifications pour Dunkerque", flush=True)
 print((data1.shape))
 afficher_classifications(data1)
+
 #1237 par 1249
+

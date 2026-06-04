@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 
 #On affiche l'intégralité des MNT en 3D
-'''sin_card_path = Path("sin_card.txt")
+sin_card_path = Path("sin_card.txt")
 if not sin_card_path.exists():
     sin_card_path = Path("./../sin_card.txt")
 
@@ -57,7 +57,7 @@ img4 = axs[1, 1].plot_surface(X, Y, data4, edgecolor='none', antialiased=False, 
 axs[1, 1].set_title('double_sin')
 fig.colorbar(img4, ax=axs[1, 1], label='Altitude [m]')
 
-plt.show()'''
+plt.show()
 
 
 
