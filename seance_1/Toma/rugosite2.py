@@ -5,22 +5,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import scipy.ndimage
 
 """
-FAIRE : 
+FAIRE :
 from rugosite2 import *
 mat = matrice_rugo()
 """
 
-dunkerque_path = Path("Dune2_Dunkerque_Extrait1_50cm.txt")
-if not dunkerque_path.exists():
-    dunkerque_path = Path("./../Dune2_Dunkerque_Extrait1_50cm.txt")
-
-raw = np.loadtxt(dunkerque_path)
-
-data = raw.astype(float)
-
-# Nettoyage des valeurs nodata (typiquement -9999 ou 9999)
-NODATA_THRESHOLD = -100.0
-data[data < NODATA_THRESHOLD] = np.nan
 
 
 # ==========================================
@@ -108,7 +97,7 @@ def matrice_rugo():
 
     return mat_rugosite
 
-matrice_rugueuse = matrice_rugo()
+
 """
 fig, axes = plt.subplots(1, 2, figsize=(15, 6))
 
@@ -130,3 +119,18 @@ plt.suptitle("Analyse de surface — Dunkerque (résolution 50 cm)", fontsize=13
 plt.tight_layout()
 plt.show()
 """
+
+if __name__ == "__main__":
+    dunkerque_path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
+    if not dunkerque_path.exists():
+        dunkerque_path = Path("./../Dune2_Dunkerque_Extrait1_50cm.xyz")
+
+    raw = np.loadtxt(dunkerque_path)
+
+    data = raw.astype(float)
+
+    # Nettoyage des valeurs nodata (typiquement -9999 ou 9999)
+    NODATA_THRESHOLD = -100.0
+    data[data < NODATA_THRESHOLD] = np.nan
+
+    matrice_rugueuse = matrice_rugo()

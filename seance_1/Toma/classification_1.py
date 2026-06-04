@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 from recap import calcul_BPI
 from pentes_Toma import pente, Evans
-from rugosite2 import matrice_rugo
 
 
 class Terrain:
@@ -33,7 +32,7 @@ def classif_1(mnt):
     bpi_inf_mask = ~nan_mask & (bpi < -0.55)
     middle_bpi_mask = ~nan_mask & ~bpi_inf_mask & ~bpi_sup_mask
     flat_mask  = ~nan_mask & (pts < 0.12)
-    pt_raide = ~nan_mask & (pts >= 0.12) 
+    pt_raide = ~nan_mask & (pts >= 0.12)
     pt_doux = ~nan_mask & ~flat_mask & ~pt_raide
 
     classe[pt_doux]                                                   = Terrain.P_DOUCE
@@ -61,8 +60,6 @@ def classif_2(mnt):
 
 
 def afficher_classifications(mnt):
-    
-
     mnt = mnt[::-1, ::]
     classif1 = classif_1(mnt)
     # classif2 = classif_2(mnt)
@@ -117,6 +114,13 @@ def resolve(name):
     return p if p.exists() else Path(f"./../{name}")
 
 
+<<<<<<< HEAD
 data1 = np.loadtxt(resolve("Dune2_Dunkerque_Extrait1_50cm.txt"))
 print("Affichage des classifications pour Dunkerque")
 afficher_classifications(data1)
+=======
+
+data1 = np.load("Dune2_Dunkerque_Extrait1_50cm.npy")
+print("Affichage des classifications pour Dunkerque", flush=True)
+afficher_classifications(data1)
+>>>>>>> d7559c7 (speeding up computation like Satan is running at you threatening to attach you Xavier's foots 🫨)

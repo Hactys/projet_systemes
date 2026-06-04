@@ -22,6 +22,9 @@ Numérotation 3x3 Evans (vue de dessus, z1 en haut à gauche) :
   z7 z8 z9
 """
 
+import os
+import hashlib
+
 import numpy as np
 from scipy.ndimage import convolve, generic_filter
 
@@ -387,6 +390,23 @@ def moyenne_voisins_disque(mat, r=3):
     return np.where(np.round(count_vals) == k, sum_vals / k, np.nan)
 
 
+def get_stable_hash(arr: np.ndarray) -> str:
+    # 1. S'assurer que le tableau est en mémoire continue
+    # 2. Utiliser les octets bruts du tableau
+    # 3. Inclure la forme (shape) et le type (dtype) pour éviter les collisions
+
+    # On utilise np.ascontiguousarray pour gérer les tableaux non contigus (ex: slices)
+    arr_contiguous = np.ascontiguousarray(arr)
+
+    # Création du hash
+    hasher = hashlib.sha256()
+    hasher.update(arr_contiguous.tobytes())
+    hasher.update(str(arr_contiguous.shape).encode())
+    hasher.update(str(arr_contiguous.dtype).encode())
+
+    return hasher.hexdigest()
+
+
 def calcul_BPI(mnt, r=2):
     """
     Indice de Position Topographique (BPI / TPI).
@@ -414,7 +434,19 @@ def calcul_BPI(mnt, r=2):
     np.ndarray (H, W), float
         Matrice BPI. NaN sur les bords et les zones sans données suffisantes.
     """
-    return mnt - moyenne_voisins_disque(mnt, r)
+    # hachage du mnt pour faire une identification rapide et stable d'une execution à l'autre :
+    hash_mnt = get_stable_hash(mnt)
+
+    # les bpi déjà calculés sont stockés dans le dossier `bpi_cache` avec un nom de fichier basé sur le hash du mnt et le rayon r
+    cache_dir = "bpi_cache"
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_file = os.path.join(cache_dir, f"bpi_r{r}_hash{hash_mnt}.npy")
+    if os.path.exists(cache_file):
+        return np.load(cache_file)
+
+    bpi = mnt - moyenne_voisins_disque(mnt, r)
+    np.save(cache_file, bpi)
+    return bpi
 
 
 # 5. CLASSIFICATION DE DIKAU (COURBURES)
