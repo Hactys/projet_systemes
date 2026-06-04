@@ -22,18 +22,18 @@ class Terrain:
 
 
 def classif_1(mnt):
-    bpi = calcul_BPI(mnt, r=50)
+    bpi = calcul_BPI(mnt, r=100)
     # FIX : initialiser à NAN plutôt qu'à 0 pour éviter des pixels PLAT parasites
     classe = np.full_like(mnt, Terrain.NAN, dtype=float)
     pts = pente(*Evans(mnt))
 
     nan_mask  = np.isnan(bpi)
     # dep_mask  = ~nan_mask & (bpi <= -0.4)
-    bpi_sup_mask = ~nan_mask & (bpi >= 0.5)
-    bpi_inf_mask = ~nan_mask & (bpi < -0.4)
+    bpi_sup_mask = ~nan_mask & (bpi >= 0.55)
+    bpi_inf_mask = ~nan_mask & (bpi < -0.55)
     middle_bpi_mask = ~nan_mask & ~bpi_inf_mask & ~bpi_sup_mask
-    flat_mask  = ~nan_mask & (pts < 0.05)
-    pt_raide = ~nan_mask & (pts >= 0.18) 
+    flat_mask  = ~nan_mask & (pts < 0.12)
+    pt_raide = ~nan_mask & (pts >= 0.12) 
     pt_doux = ~nan_mask & ~flat_mask & ~pt_raide
 
     classe[pt_doux]                                                   = Terrain.P_DOUCE
@@ -77,7 +77,7 @@ def afficher_classifications(mnt):
 
     # FIX : vmin=0, vmax=9 pour couvrir toutes les valeurs de Terrain
     cmap = plt.cm.tab10
-    norm = plt.Normalize(vmin=0, vmax=10)
+    norm = plt.Normalize(vmin=0, vmax=11)
 
     ax.imshow(classif1, cmap=cmap, norm=norm, alpha=0.8)
 
@@ -117,6 +117,6 @@ def resolve(name):
     return p if p.exists() else Path(f"./../{name}")
 
 
-data1 = np.loadtxt(resolve("Dune2_Dunkerque_Extrait1_50cm.xyz"))
+data1 = np.loadtxt(resolve("Dune2_Dunkerque_Extrait1_50cm.txt"))
 print("Affichage des classifications pour Dunkerque")
 afficher_classifications(data1)

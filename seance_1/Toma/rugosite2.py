@@ -10,9 +10,9 @@ from rugosite2 import *
 mat = matrice_rugo()
 """
 
-dunkerque_path = Path("Dune2_Dunkerque_Extrait1_50cm.xyz")
+dunkerque_path = Path("Dune2_Dunkerque_Extrait1_50cm.txt")
 if not dunkerque_path.exists():
-    dunkerque_path = Path("./../Dune2_Dunkerque_Extrait1_50cm.xyz")
+    dunkerque_path = Path("./../Dune2_Dunkerque_Extrait1_50cm.txt")
 
 raw = np.loadtxt(dunkerque_path)
 
