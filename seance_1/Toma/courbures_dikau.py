@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
 from pathlib import Path
 from matplotlib.colors import ListedColormap
+import matplotlib as mpl
+
+
+mpl.use("TkAgg") # pour ne pas appler Qt qui fonctionne mal avec Wayland
+mpl.rcParams['figure.dpi'] = 175      # augmente la résolution d'affichage
+mpl.rcParams['figure.figsize'] = (8, 6)  # taille par défaut des figures (en pouces)
 
 
 def coeffs_evans(mnt, s=1.0):
