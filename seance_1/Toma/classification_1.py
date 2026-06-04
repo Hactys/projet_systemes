@@ -18,28 +18,31 @@ class Terrain:
     SHALLOWFLAT = 7
     MIDFLAT = 8
     NAN = 9
+    CUVETTE = 10
 
 
 def classif_1(mnt):
-    bpi = calcul_BPI(mnt, r=75)
+    bpi = calcul_BPI(mnt, r=50)
     # FIX : initialiser à NAN plutôt qu'à 0 pour éviter des pixels PLAT parasites
     classe = np.full_like(mnt, Terrain.NAN, dtype=float)
     pts = pente(*Evans(mnt))
 
     nan_mask  = np.isnan(bpi)
     # dep_mask  = ~nan_mask & (bpi <= -0.4)
-    pente_mask = ~nan_mask & (bpi >= 0.5)
-    # bpi_mask
+    bpi_sup_mask = ~nan_mask & (bpi >= 0.5)
+    bpi_inf_mask = ~nan_mask & (bpi < -0.4)
+    middle_bpi_mask = ~nan_mask & ~bpi_inf_mask & ~bpi_sup_mask
     flat_mask  = ~nan_mask & (pts < 0.05)
-    pt_raide = ~nan_mask & (pts >= 0.15) & 
+    pt_raide = ~nan_mask & (pts >= 0.18) 
     pt_doux = ~nan_mask & ~flat_mask & ~pt_raide
 
-    classe[pt_doux]                             = Terrain.P_DOUCE
-    classe[pente_mask]                          = Terrain.CRETE
-    classe[pt_raide]                            = Terrain.P_RAIDE
-    classe[flat_mask & (mnt < -33)]             = Terrain.DEEPFLAT
-    classe[flat_mask & (mnt > -27)]             = Terrain.SHALLOWFLAT
-    classe[flat_mask & (mnt >= -33) & (mnt <= -27)] = Terrain.MIDFLAT
+    classe[pt_doux]                                                   = Terrain.P_DOUCE
+    classe[bpi_sup_mask]                                              = Terrain.CRETE
+    classe[pt_raide]                                                  = Terrain.P_RAIDE
+    classe[flat_mask & (mnt < -33) & middle_bpi_mask]                 = Terrain.DEEPFLAT
+    classe[flat_mask & (mnt > -27) & middle_bpi_mask]                 = Terrain.SHALLOWFLAT
+    classe[flat_mask & (mnt >= -33) & (mnt <= -27) & middle_bpi_mask] = Terrain.MIDFLAT
+    classe[bpi_inf_mask]                                              = Terrain.CUVETTE
     return classe
 
 
@@ -74,7 +77,7 @@ def afficher_classifications(mnt):
 
     # FIX : vmin=0, vmax=9 pour couvrir toutes les valeurs de Terrain
     cmap = plt.cm.tab10
-    norm = plt.Normalize(vmin=0, vmax=9)
+    norm = plt.Normalize(vmin=0, vmax=10)
 
     ax.imshow(classif1, cmap=cmap, norm=norm, alpha=0.8)
 
@@ -97,6 +100,7 @@ def afficher_classifications(mnt):
         Patch(facecolor=c(Terrain.DEEPFLAT),     edgecolor="k", label="Deep Flat"),
         Patch(facecolor=c(Terrain.MIDFLAT),      edgecolor="k", label="Mid Flat"),
         Patch(facecolor=c(Terrain.SHALLOWFLAT),  edgecolor="k", label="Shallow Flat"),
+        Patch(facecolor=c(Terrain.CUVETTE),  edgecolor="k", label="Cuvette"),
         Patch(facecolor=c(Terrain.NAN),          edgecolor="k", label="NaN / bord"),
         #Patch(facecolor="blue", edgecolor="k", label="Rugosité")
     ]
