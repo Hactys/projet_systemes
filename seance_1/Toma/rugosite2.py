@@ -88,6 +88,10 @@ def rugosite(matrice_pente_rad, matrice_exposition_rad, taille_voisinage=3):
     return k
 
 def matrice_rugo():
+    raw = np.loadtxt("Dune2_Dunkerque_Extrait1_50cm.xyz")
+
+    data = raw.astype(float)
+
     fx, fy = Evans(data)
 
     norme_gradient  = np.sqrt(fx**2 + fy**2)
