@@ -114,13 +114,6 @@ def resolve(name):
     return p if p.exists() else Path(f"./../{name}")
 
 
-<<<<<<< HEAD
-data1 = np.loadtxt(resolve("Dune2_Dunkerque_Extrait1_50cm.txt"))
-print("Affichage des classifications pour Dunkerque")
-afficher_classifications(data1)
-=======
-
 data1 = np.load("Dune2_Dunkerque_Extrait1_50cm.npy")
 print("Affichage des classifications pour Dunkerque", flush=True)
 afficher_classifications(data1)
->>>>>>> d7559c7 (speeding up computation like Satan is running at you threatening to attach you Xavier's foots 🫨)
