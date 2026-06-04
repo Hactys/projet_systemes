@@ -6,6 +6,12 @@ from recap import calcul_BPI
 from pentes_Toma import pente, Evans
 from rugosite2 import matrice_rugo
 from matplotlib.colors import ListedColormap
+import matplotlib as mpl
+
+
+mpl.use("TkAgg") # pour ne pas appler Qt qui fonctionne mal avec Wayland
+mpl.rcParams['figure.dpi'] = 175      # augmente la résolution d'affichage
+mpl.rcParams['figure.figsize'] = (8, 6)  # taille par défaut des figures (en pouces)
 
 
 class Terrain:
@@ -30,20 +36,20 @@ def classif_1(mnt):
 
     nan_mask  = np.isnan(bpi)
     # dep_mask  = ~nan_mask & (bpi <= -0.4)
-    bpi_sup_mask = ~nan_mask & (bpi >= 0.5)
-    bpi_inf_mask = ~nan_mask & (bpi < -0.5)
-    middle_bpi_mask = ~nan_mask & ~bpi_inf_mask & ~bpi_sup_mask
+    low_bpi = ~nan_mask & (bpi <= -0.4)
+    high_bpi = ~nan_mask & (bpi >= 0.5)
+    mid_bpi = ~nan_mask & ~low_bpi & ~high_bpi
     flat_mask  = ~nan_mask & (pts < 0.15)
     pt_raide = ~nan_mask & (pts >= 0.15)
     pt_doux = ~nan_mask & ~flat_mask & ~pt_raide
 
-    classe[pt_doux]                                                   = Terrain.P_DOUCE
-    classe[bpi_sup_mask]                                              = Terrain.CRETE
-    classe[pt_raide]                                                  = Terrain.P_RAIDE
-    classe[flat_mask & (mnt < -33) & middle_bpi_mask]                 = Terrain.DEEPFLAT
-    classe[flat_mask & (mnt > -27) & middle_bpi_mask]                 = Terrain.SHALLOWFLAT
-    classe[flat_mask & (mnt >= -33) & (mnt <= -27) & middle_bpi_mask] = Terrain.MIDFLAT
-    classe[bpi_inf_mask]                                              = Terrain.DUNE_FOOT
+    classe[low_bpi]                                                   = Terrain.DUNE_FOOT
+    classe[high_bpi]                                                  = Terrain.CRETE
+    classe[mid_bpi & (pts > 0.15)]                                    = Terrain.P_RAIDE
+    classe[mid_bpi & (0.15 < pts) & (pts <= 0.15)]                    = Terrain.P_DOUCE  # volontairement impossible à vérifier pour avoir une meilleure lisibilité de la carte
+    classe[mid_bpi & (pts < 0.15) & (mnt <= -33)]                     = Terrain.DEEPFLAT
+    classe[mid_bpi & (pts < 0.15) & (-33 < mnt) & (mnt <= -27)]       = Terrain.MIDFLAT
+    classe[mid_bpi & (pts < 0.15) & (-27 < mnt)]                      = Terrain.SHALLOWFLAT
     return classe
 
 
@@ -64,7 +70,7 @@ def classif_2(mnt):
 def afficher_classifications(mnt):
     mnt = mnt[::-1, ::]
     classif1 = classif_1(mnt)
-    # classif2 = classif_2(mnt)
+    classif2 = classif_2(mnt)
     print("calcul de rugo en cours")
     mat_rugo = matrice_rugo()
     print("calcul rugo fini")
@@ -105,7 +111,7 @@ def afficher_classifications(mnt):
     ]
 
     ax.legend(handles=legend_elements, bbox_to_anchor=(1.05, 1), loc="upper left")
-    # im_rugo = ax.imshow(rugo_haute, cmap="Blues", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
+    im_rugo = ax.imshow(rugo_haute, cmap="Blues", vmin=0, vmax=1, alpha=0.5, interpolation='none', zorder=10)
     np.savetxt("test_mat.txt",classif1,fmt = "%d")
     plt.tight_layout()
     plt.show()
