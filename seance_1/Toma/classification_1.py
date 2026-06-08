@@ -1,12 +1,24 @@
 from pathlib import Path
+from tkinter import N
+from typing import List
+
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Patch
-from recap import calcul_BPI
-from pentes_Toma import pente, Evans
-from rugosite2 import matrice_rugo
-from matplotlib.colors import ListedColormap
+import pandas as pd
 import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+from matplotlib.patches import Patch
+from matplotlib.colors import ListedColormap
+from sklearn import cluster
+from sklearn.preprocessing import StandardScaler
+from scipy.ndimage import gaussian_filter
+from sklearn.metrics import confusion_matrix
+from skimage.filters.rank import modal
+
+from recap import calcul_BPI
+from rugosite2 import matrice_rugo
+from pentes_Toma import pente, Evans
+
 
 
 mpl.use("TkAgg") # pour ne pas appler Qt qui fonctionne mal avec Wayland
@@ -121,11 +133,98 @@ def resolve(name):
     return p if p.exists() else Path(f"./../{name}")
 
 
+def k_moyenne(mnt, n_clusters: List[int], sigma: float = 2.0, smooth=False):
+    PAS = 0.5
+    x = np.arange(mnt.shape[1]) * PAS
+    y = np.arange(mnt.shape[0]) * PAS
+    X, Y = np.meshgrid(x, y)
+    w_bpi = calcul_BPI(mnt, r=35)
+    pts = pente(*Evans(mnt))
+    z = mnt.copy()
+
+    if smooth:
+        # Lissage gaussien des features pour des clusters plus cohérents spatialement
+        z = gaussian_filter(mnt, sigma=sigma)
+        pts = gaussian_filter(pts, sigma=sigma)
+        w_bpi = gaussian_filter(w_bpi, sigma=sigma)
+
+    df = pd.DataFrame({'x': X.flatten(), 'y': Y.flatten()[::-1], 'z': z.flatten(), 'p': pts.flatten(), 'wbpi': w_bpi.flatten()})
+    data = df.dropna().copy()
+    select = data[['z', 'p', 'wbpi']]
+
+    # Mise à l'échelle des données
+    scaler = StandardScaler()
+    data_ok = scaler.fit_transform(select)
+    #data_ok[1] *= 10
+
+    resultats = {}
+    for n in n_clusters:
+        kmeans = cluster.KMeans(n_clusters=n, random_state=0).fit(data_ok)
+        df[f'kmeans_{n}'] = pd.Series(kmeans.labels_, index=data.index)
+        mat = df.pivot(columns='x', index='y')
+        resultats[n] = mat[f'kmeans_{n}'].values
+    return resultats
+
+
+def afficher_kmeans(mnt, n_clusters:List[int]):
+    fig, axes = plt.subplots(len(n_clusters), 3, figsize=(15, 5))
+    # boucle qui affiche chaque classification dans un subplot différent
+    # première colonne : classification k-means
+    # deuxième colonne : classification k-means avec lissage gaussien
+    # troisième colonne : classification k-means avec lissage gaussien plus fort
+    for i, n in enumerate(n_clusters):
+        resultats = k_moyenne(mnt, n_clusters=[n], sigma=2.0, smooth=False)
+        axes[i, 0].imshow(resultats[n], cmap='tab10')
+        axes[i, 0].set_title(f'K-means (n={n})')
+
+        resultats_smooth = k_moyenne(mnt, n_clusters=[n], sigma=1.25, smooth=True)
+        axes[i, 1].imshow(resultats_smooth[n], cmap='tab10')
+        axes[i, 1].set_title(f'K-means lissé (n={n})')
+
+        resultats_smooth_strong = k_moyenne(mnt, n_clusters=[n], sigma=3.0, smooth=True)
+        axes[i, 2].imshow(resultats_smooth_strong[n], cmap='tab10')
+        axes[i, 2].set_title(f'K-means lissé fort (n={n})')
+
+        # mettre legende de la forme : ax.legend(handles=[Patch(facecolor=plt.cm.viridis(i / max(n_clusters)), edgecolor="k", label=f"Cluster {i}") for i in range(k)], bbox_to_anchor=(0.98, 0.95), loc="upper left")
+        axes[i, 0].legend(handles=[Patch(facecolor=plt.cm.viridis(j / n), edgecolor="k", label=f"Cluster {j}") for j in range(n)], bbox_to_anchor=(0.98, 0.95), loc="upper left")
+        axes[i, 1].legend(handles=[Patch(facecolor=plt.cm.viridis(j / n), edgecolor="k", label=f"Cluster {j}") for j in range(n)], bbox_to_anchor=(0.98, 0.95), loc="upper left")
+        axes[i, 2].legend(handles=[Patch(facecolor=plt.cm.viridis(j / n), edgecolor="k", label=f"Cluster {j}") for j in range(n)], bbox_to_anchor=(0.98, 0.95), loc="upper left")
+    plt.tight_layout()
+    plt.show()
+
+
+def matrices_confusion(mnt, n_clusters:List[int]):
+    classif1 = classif_1(mnt)
+    resultats = k_moyenne(mnt, n_clusters=n_clusters, sigma=2.0, smooth=False)
+    for n in n_clusters:
+        kmeans_labels = resultats[n].flatten()
+        classif_labels = classif1.flatten()
+        mask = ~np.isnan(classif_labels) & ~np.isnan(kmeans_labels)  # ne garder que les pixels valides pour les deux classifications
+        kmeans_labels = kmeans_labels[mask]
+        classif_labels = classif_labels[mask]
+
+        cm = confusion_matrix(classif_labels, kmeans_labels)
+
+        # plot the confusion matrices
+        plt.figure(figsize=(8, 6))
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title(f'Confusion Matrix (n={n})')
+        plt.colorbar()
+        tick_marks = np.arange(len(np.unique(classif_labels)))
+        tick_labels_classif = [k for k, v in Terrain.__dict__.items()]
+        plt.xticks(tick_marks, tick_marks)
+        plt.yticks(tick_marks, tick_labels_classif)
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label')
+        plt.tight_layout()
+        plt.show()
 
 data1 = np.load("Dune2_Dunkerque_Extrait1_50cm.npy")
 print("Affichage des classifications pour Dunkerque", flush=True)
 print((data1.shape))
-afficher_classifications(data1)
+# afficher_classifications(data1)
+#afficher_kmeans(data1, n_clusters=[5, 6])
+matrices_confusion(data1, n_clusters=[5, 6])
 
 #1237 par 1249
 
