@@ -194,30 +194,58 @@ def afficher_kmeans(mnt, n_clusters:List[int]):
 
 
 def matrices_confusion(mnt, n_clusters:List[int]):
+    terrain_names = {v: k for k, v in Terrain.__dict__.items() if not k.startswith('_')}
+
     classif1 = classif_1(mnt)
-    resultats = k_moyenne(mnt, n_clusters=n_clusters, sigma=2.0, smooth=False)
+    resultats = k_moyenne(mnt, n_clusters=n_clusters, sigma=1.5, smooth=False)
+
+    n_plots = len(n_clusters)
+    fig, axes = plt.subplots(1, n_plots, figsize=(max(6, sum(n * 0.9 for n in n_clusters)), 6))
+    if n_plots == 1:
+        axes = [axes]
+
+    # pré-calcul de toutes les matrices pour déterminer le max global
+    cms_pct = []
+    classif_classes_list = []
     for n in n_clusters:
         kmeans_labels = resultats[n].flatten()
         classif_labels = classif1.flatten()
-        mask = ~np.isnan(classif_labels) & ~np.isnan(kmeans_labels)  # ne garder que les pixels valides pour les deux classifications
-        kmeans_labels = kmeans_labels[mask]
-        classif_labels = classif_labels[mask]
+        mask = ~np.isnan(classif_labels) & ~np.isnan(kmeans_labels)
+        kmeans_labels = kmeans_labels[mask].astype(int)
+        classif_labels = classif_labels[mask].astype(int)
 
-        cm = confusion_matrix(classif_labels, kmeans_labels)
+        classif_classes = np.unique(classif_labels)
+        cm = np.array([
+            np.bincount(kmeans_labels[classif_labels == c], minlength=n)
+            for c in classif_classes
+        ])
+        row_sums = cm.sum(axis=1, keepdims=True)
+        cm_pct = np.where(row_sums > 0, cm / row_sums * 100, 0.0)
+        cms_pct.append(cm_pct)
+        classif_classes_list.append(classif_classes)
 
-        # plot the confusion matrices
-        plt.figure(figsize=(8, 6))
-        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        plt.title(f'Confusion Matrix (n={n})')
-        plt.colorbar()
-        tick_marks = np.arange(len(np.unique(classif_labels)))
-        tick_labels_classif = [k for k, v in Terrain.__dict__.items()]
-        plt.xticks(tick_marks, tick_marks)
-        plt.yticks(tick_marks, tick_labels_classif)
-        plt.ylabel('True label')
-        plt.xlabel('Predicted label')
-        plt.tight_layout()
-        plt.show()
+    vmax = max(cm.max() for cm in cms_pct)
+
+    for ax, n, cm_pct, classif_classes in zip(axes, n_clusters, cms_pct, classif_classes_list):
+        im = ax.imshow(cm_pct, interpolation='nearest', cmap=plt.cm.Blues, aspect='auto', vmin=0, vmax=vmax)
+        ax.set_title(f'k={n}')
+
+        ax.set_xticks(np.arange(n))
+        ax.set_xticklabels([f'C{i}' for i in range(n)], rotation=45, ha='right')
+        ax.set_xlabel(f'Cluster {n}-means')
+
+        ax.set_yticks(np.arange(len(classif_classes)))
+        ax.set_yticklabels([terrain_names.get(c, str(c)) for c in classif_classes])
+
+        for i in range(cm_pct.shape[0]):
+            for j in range(cm_pct.shape[1]):
+                ax.text(j, i, f'{cm_pct[i, j]:.1f}%', ha='center', va='center',
+                        color='white' if cm_pct[i, j] > vmax / 2 else 'black', fontsize=7)
+
+    fig.colorbar(im, ax=axes, label='%', pad=-0.45)
+    fig.suptitle('Matrices de confusion — classif_1 vs k-means (% par classe)', y=1.01)
+    plt.tight_layout()
+    plt.show()
 
 data1 = np.load("Dune2_Dunkerque_Extrait1_50cm.npy")
 print("Affichage des classifications pour Dunkerque", flush=True)
